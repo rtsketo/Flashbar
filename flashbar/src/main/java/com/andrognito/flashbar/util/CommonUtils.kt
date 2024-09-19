@@ -6,9 +6,19 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
 import android.util.DisplayMetrics
-import android.view.*
-import android.view.Surface.*
-import com.andrognito.flashbar.util.NavigationBarPosition.*
+import android.view.Display
+import android.view.Surface.ROTATION_0
+import android.view.Surface.ROTATION_270
+import android.view.Surface.ROTATION_90
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.view.Window
+import android.view.WindowManager
+import com.andrognito.flashbar.util.NavigationBarPosition.BOTTOM
+import com.andrognito.flashbar.util.NavigationBarPosition.LEFT
+import com.andrognito.flashbar.util.NavigationBarPosition.RIGHT
+import com.andrognito.flashbar.util.NavigationBarPosition.TOP
 import java.lang.reflect.InvocationTargetException
 
 internal fun Activity.getStatusBarHeightInPx(): Int {

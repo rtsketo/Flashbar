@@ -1,3 +1,4 @@
+// com/andrognito/flashbar/FlashbarContainerView.kt
 package com.andrognito.flashbar
 
 import android.app.Activity
@@ -10,27 +11,33 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat
 import com.andrognito.flashbar.Flashbar.Companion.DURATION_INDEFINITE
 import com.andrognito.flashbar.Flashbar.DismissEvent
-import com.andrognito.flashbar.Flashbar.DismissEvent.*
+import com.andrognito.flashbar.Flashbar.DismissEvent.MANUAL
+import com.andrognito.flashbar.Flashbar.DismissEvent.SWIPE
+import com.andrognito.flashbar.Flashbar.DismissEvent.TAP_OUTSIDE
+import com.andrognito.flashbar.Flashbar.DismissEvent.TIMEOUT
 import com.andrognito.flashbar.Flashbar.Vibration.DISMISS
 import com.andrognito.flashbar.SwipeDismissTouchListener.DismissCallbacks
 import com.andrognito.flashbar.anim.FlashAnim
 import com.andrognito.flashbar.anim.FlashAnimBarBuilder
 import com.andrognito.flashbar.anim.FlashAnimIconBuilder
-import com.andrognito.flashbar.util.NavigationBarPosition.*
+import com.andrognito.flashbar.util.NavigationBarPosition.BOTTOM
+import com.andrognito.flashbar.util.NavigationBarPosition.LEFT
+import com.andrognito.flashbar.util.NavigationBarPosition.RIGHT
+import com.andrognito.flashbar.util.NavigationBarPosition.TOP
 import com.andrognito.flashbar.util.afterMeasured
 import com.andrognito.flashbar.util.getNavigationBarPosition
 import com.andrognito.flashbar.util.getNavigationBarSizeInPx
 import com.andrognito.flashbar.util.getRootView
 
 /**
- * Container withView matching the height and width of the parent to hold a FlashbarView.
- * It will occupy the entire screens size but will be completely transparent. The
+ * Container view matching the height and width of the parent to hold a FlashbarView.
+ * It will occupy the entire screen's size but will be completely transparent. The
  * FlashbarView inside is the only visible component in it.
  */
-internal class FlashbarContainerView(context: Context)
-    : RelativeLayout(context), DismissCallbacks {
+internal class FlashbarContainerView(context: Context) : RelativeLayout(context), DismissCallbacks {
 
     private val dismissRunnable = Runnable { dismissInternal(TIMEOUT) }
 
@@ -62,7 +69,7 @@ internal class FlashbarContainerView(context: Context)
                 val rect = Rect()
                 flashbarView.getHitRect(rect)
 
-                // Checks if the tap was outside the bar
+                // Check if the tap was outside the bar
                 if (!rect.contains(event.x.toInt(), event.y.toInt())) {
                     onTapOutsideListener?.onTap(parentFlashbar)
 
@@ -105,7 +112,7 @@ internal class FlashbarContainerView(context: Context)
         isHapticFeedbackEnabled = true
 
         if (showOverlay) {
-            setBackgroundColor(overlayColor!!)
+            setBackgroundColor(overlayColor ?: ContextCompat.getColor(context, android.R.color.transparent))
 
             if (overlayBlockable) {
                 isClickable = true
@@ -113,7 +120,7 @@ internal class FlashbarContainerView(context: Context)
             }
         }
 
-        addView(flashbarView)
+        // The FlashbarView is already added via 'attach' method
     }
 
     internal fun addParent(flashbar: Flashbar) {
@@ -121,7 +128,7 @@ internal class FlashbarContainerView(context: Context)
     }
 
     internal fun adjustOrientation(activity: Activity) {
-        val flashbarContainerViewLp = RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        val flashbarContainerViewLp = LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
         val navigationBarPosition = activity.getNavigationBarPosition()
         val navigationBarSize = activity.getNavigationBarSizeInPx()
@@ -130,6 +137,7 @@ internal class FlashbarContainerView(context: Context)
             LEFT -> flashbarContainerViewLp.leftMargin = navigationBarSize
             RIGHT -> flashbarContainerViewLp.rightMargin = navigationBarSize
             BOTTOM -> flashbarContainerViewLp.bottomMargin = navigationBarSize
+            TOP -> flashbarContainerViewLp.topMargin = navigationBarSize
         }
 
         layoutParams = flashbarContainerViewLp
@@ -141,8 +149,8 @@ internal class FlashbarContainerView(context: Context)
 
         val activityRootView = activity.getRootView() ?: return
 
-        // Only add the withView to the parent once
-        if (this.parent == null) activityRootView.addView(this)
+        // Only add the view to the parent once
+        if (this.parent == null) activityRootView.addView(this@FlashbarContainerView)
 
         activityRootView.afterMeasured {
             val enterAnim = enterAnimBuilder.withView(flashbarView).build()

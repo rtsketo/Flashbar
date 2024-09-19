@@ -5,11 +5,16 @@ import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.support.annotation.*
-import android.support.v4.content.ContextCompat
+
 import android.text.Spanned
 import android.widget.ImageView.ScaleType
 import android.widget.ImageView.ScaleType.CENTER_CROP
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.annotation.StyleRes
+import androidx.core.content.ContextCompat
 import com.andrognito.flashbar.Flashbar.Gravity.BOTTOM
 import com.andrognito.flashbar.Flashbar.Gravity.TOP
 import com.andrognito.flashbar.anim.FlashAnim
@@ -57,7 +62,7 @@ class Flashbar private constructor(private var builder: Builder) {
 
         flashbarView = FlashbarView(builder.activity)
         flashbarView.init(builder.gravity, builder.castShadow, builder.shadowStrength!!)
-        flashbarView.adjustWitPositionAndOrientation(builder.activity, builder.gravity)
+        flashbarView.adjustWithPositionAndOrientation(builder.activity, builder.gravity)
         flashbarView.addParent(flashbarContainerView)
 
         flashbarContainerView.attach(flashbarView)

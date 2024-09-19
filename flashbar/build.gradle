@@ -46,16 +46,15 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     implementation "androidx.appcompat:appcompat:$versions.supportVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
-}
-
-task sourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
 }
 
 task javadoc(type: Javadoc) {
@@ -70,7 +69,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
-    archives sourcesJar
     archives javadocJar
 }
 
@@ -83,8 +81,6 @@ afterEvaluate {
                 version = libraryVersion
 
                 from components.release
-
-                artifact sourcesJar
                 artifact javadocJar
 
                 pom {
