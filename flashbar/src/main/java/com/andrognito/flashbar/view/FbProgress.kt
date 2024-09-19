@@ -567,6 +567,7 @@ class FbProgress : View {
         }
 
         companion object {
+            @JvmField
             val CREATOR: Parcelable.Creator<WheelSavedState> =
                 object : Parcelable.Creator<WheelSavedState> {
                     override fun createFromParcel(`in`: Parcel): WheelSavedState {

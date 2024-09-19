@@ -1,14 +1,26 @@
 package com.andrognito.flashbardemo;
 
+import static android.widget.ImageView.ScaleType.CENTER_CROP;
+import static com.andrognito.flashbar.Flashbar.Gravity.BOTTOM;
+import static com.andrognito.flashbar.Flashbar.Gravity.TOP;
+import static com.andrognito.flashbar.Flashbar.ProgressPosition.LEFT;
+import static com.andrognito.flashbar.Flashbar.ProgressPosition.RIGHT;
+import static com.andrognito.flashbar.R.color.slate_black;
+import static com.andrognito.flashbar.R.color.white;
+import static com.andrognito.flashbar.R.color.yellow;
+import static com.andrognito.flashbardemo.R.color.colorAccent;
+import static com.andrognito.flashbardemo.R.color.colorPrimaryDark;
+import static com.andrognito.flashbardemo.R.drawable.ic_drop;
+
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView.ScaleType;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.andrognito.flashbar.Flashbar;
 import com.andrognito.flashbar.anim.FlashAnim;
@@ -52,14 +64,14 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar basic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .message("This is a basic flashbar")
                 .build();
     }
 
     private Flashbar basicDuration() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .duration(500)
                 .message("This is a flashbar with duration")
                 .build();
@@ -67,7 +79,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar gravityTop() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .message(
                         "Flashbar is shown at the top. You can also have more than one line in "
                                 + "the flashbar. The bar will dynamically adjust its size.")
@@ -76,14 +88,14 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar gravityBottom() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .message("Flashbar is shown at the bottom.")
                 .build();
     }
 
     private Flashbar titleBasic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello Flashbar")
                 .message("You can put any message of any length here.")
                 .build();
@@ -91,9 +103,9 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar titleAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World")
-                .titleColorRes(R.color.white)
+                .titleColorRes(white)
                 .titleSizeInSp(28)
                 .message("The font and size of the text is changed here.")
                 .titleTypeface(Typeface.createFromAsset(getAssets(), "BeautifulAndOpenHearted.ttf"))
@@ -102,7 +114,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar messageBasic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World")
                 .message(
                         "This is a short message. But your message can be of any length and the "
@@ -115,10 +127,10 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar messageAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World")
                 .message("This is a very short message.")
-                .messageColor(ContextCompat.getColor(this, R.color.white))
+                .messageColor(ContextCompat.getColor(this, white))
                 .messageSizeInSp(24)
                 .messageTypeface(
                         Typeface.createFromAsset(getAssets(), "BeautifulAndOpenHearted.ttf"))
@@ -127,15 +139,15 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar background() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .message("The background color can be changed to any color.")
-                .backgroundColorRes(R.color.colorPrimaryDark)
+                .backgroundColorRes(colorPrimaryDark)
                 .build();
     }
 
     private Flashbar backgroundDrawable() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .titleTypeface(Typeface.createFromAsset(getAssets(), "BeautifulAndOpenHearted.ttf"))
                 .titleSizeInSp(32)
@@ -148,20 +160,20 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar overlay() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can show a modal overlay to give a dim effect in the entire screen.")
-                .backgroundColorRes(R.color.colorPrimaryDark)
+                .backgroundColorRes(colorPrimaryDark)
                 .showOverlay()
                 .build();
     }
 
     private Flashbar overlayAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can show a modal overlay to give a dim effect in the entire screen.")
-                .backgroundColorRes(R.color.colorPrimaryDark)
+                .backgroundColorRes(colorPrimaryDark)
                 .showOverlay()
                 .overlayColorRes(R.color.modal)
                 .build();
@@ -169,8 +181,8 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar primaryActionBasic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
-                .backgroundColorRes(R.color.colorAccent)
+                .gravity(TOP)
+                .backgroundColorRes(colorAccent)
                 .title("Hello World!")
                 .message("You can click on the primary action button.")
                 .primaryActionText("DOWNLOAD")
@@ -179,19 +191,19 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar primaryActionAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
-                .backgroundColorRes(R.color.colorPrimaryDark)
+                .backgroundColorRes(colorPrimaryDark)
                 .message("You can customize the the primary action button.")
                 .primaryActionText("TRY NOW")
-                .primaryActionTextColorRes(R.color.colorAccent)
+                .primaryActionTextColorRes(colorAccent)
                 .primaryActionTextSizeInSp(16)
                 .build();
     }
 
     private Flashbar primaryActionListener() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can click on the primary action button.")
                 .primaryActionText("TRY")
@@ -206,34 +218,24 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar positiveNegativeAction() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message(
                         "You can show either or both of the positive/negative buttons and "
                                 + "customize them similar to the primary button.")
-                .backgroundColorRes(R.color.slate_black)
+                .backgroundColorRes(slate_black)
                 .positiveActionText("YES")
                 .negativeActionText("NO")
-                .positiveActionTapListener(new Flashbar.OnActionTapListener() {
-                    @Override
-                    public void onActionTapped(@NotNull Flashbar bar) {
-                        bar.dismiss();
-                    }
-                })
-                .negativeActionTapListener(new Flashbar.OnActionTapListener() {
-                    @Override
-                    public void onActionTapped(@NotNull Flashbar bar) {
-                        bar.dismiss();
-                    }
-                })
-                .positiveActionTextColorRes(R.color.yellow)
-                .negativeActionTextColorRes(R.color.yellow)
+                .positiveActionTapListener(Flashbar::dismiss)
+                .negativeActionTapListener(Flashbar::dismiss)
+                .positiveActionTextColorRes(yellow)
+                .negativeActionTextColorRes(yellow)
                 .build();
     }
 
     private Flashbar iconBasic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can show a default icon on the left side of the with view.")
                 .showIcon()
@@ -242,45 +244,45 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar iconAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can show a default icon on the left side of the with view.")
-                .backgroundColorRes(R.color.colorPrimaryDark)
-                .showIcon(0.8f, ScaleType.CENTER_CROP)
-                .icon(R.drawable.ic_drop)
-                .iconColorFilterRes(R.color.colorAccent)
+                .backgroundColorRes(colorPrimaryDark)
+                .showIcon(0.8f, CENTER_CROP)
+                .icon(ic_drop)
+                .iconColorFilterRes(colorAccent)
                 .build();
     }
 
     private Flashbar progressBasic() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message(
                         "You can show the progress bar on either the left or right side of the "
                                 + "view")
-                .showProgress(Flashbar.ProgressPosition.LEFT)
+                .showProgress(LEFT)
                 .build();
     }
 
     private Flashbar progressAdvanced() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .message(
                         "You can customize the look-and-fell of the progress bar.")
-                .backgroundColorRes(R.color.slate_black)
+                .backgroundColorRes(slate_black)
                 .showIcon()
-                .showProgress(Flashbar.ProgressPosition.RIGHT)
-                .progressTintRes(R.color.colorAccent)
+                .showProgress(RIGHT)
+                .progressTintRes(colorAccent)
                 .build();
     }
 
     private Flashbar enterExitAnimation() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can change the enter/exit animation of the flashbar.")
-                .backgroundColorRes(R.color.colorAccent)
+                .backgroundColorRes(colorAccent)
                 .enterAnimation(FlashAnim.with(this)
                         .animateBar()
                         .duration(550)
@@ -296,12 +298,12 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar enterExitAnimationSlide() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message("You can make the flashbar slide from the left/right as well.")
-                .backgroundColorRes(R.color.slate_black)
+                .backgroundColorRes(slate_black)
                 .showIcon()
-                .icon(R.drawable.ic_drop)
+                .icon(ic_drop)
                 .enterAnimation(FlashAnim.with(this)
                         .animateBar()
                         .duration(400)
@@ -317,13 +319,13 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar iconAnimation() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can add animation effects to the icon as well.")
-                .backgroundColorRes(R.color.colorPrimaryDark)
+                .backgroundColorRes(colorPrimaryDark)
                 .showIcon()
-                .icon(R.drawable.ic_drop)
-                .iconColorFilterRes(R.color.colorAccent)
+                .icon(ic_drop)
+                .iconColorFilterRes(colorAccent)
                 .iconAnimation(FlashAnim.with(this)
                         .animateIcon()
                         .pulse()
@@ -335,7 +337,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar showListener() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message("You can listen to events when the flashbar is shown.")
                 .barShowListener(new Flashbar.OnBarShowListener() {
@@ -359,7 +361,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar dismissListener() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .duration(500)
                 .message("You can listen to events when the flashbar is dismissed.")
@@ -385,7 +387,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar barTap() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.TOP)
+                .gravity(TOP)
                 .title("Hello World!")
                 .message("You can listen to tap events inside or outside te bar.")
                 .listenBarTaps(new Flashbar.OnTapListener() {
@@ -405,7 +407,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar swipeToDismiss() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message("You can swipe the flashbar to dismiss it.")
                 .enableSwipeToDismiss()
@@ -414,7 +416,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar barShadow() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message("You can swipe the flashbar to dismiss it.")
                 .castShadow(true, 4)
@@ -423,7 +425,7 @@ public class JavaSampleActivity extends AppCompatActivity {
 
     private Flashbar vibration() {
         return new Flashbar.Builder(this)
-                .gravity(Flashbar.Gravity.BOTTOM)
+                .gravity(BOTTOM)
                 .title("Hello World!")
                 .message("You can swipe the flashbar to dismiss it.")
                 .vibrateOn(Flashbar.Vibration.SHOW, Flashbar.Vibration.DISMISS)
