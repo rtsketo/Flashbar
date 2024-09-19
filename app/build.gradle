@@ -1,8 +1,11 @@
+import static org.gradle.api.JavaVersion.VERSION_17
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    namespace 'com.andrognito.flashbardemo'
     compileSdkVersion versions.sdkTarget
 
     defaultConfig {
@@ -12,7 +15,17 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    compileOptions {
+        sourceCompatibility VERSION_17
+        targetCompatibility VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
+
 
 dependencies {
     implementation project(':flashbar')

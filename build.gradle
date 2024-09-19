@@ -1,19 +1,24 @@
 buildscript {
     ext.versions = [
             sdkMin        : 14,
-            sdkTarget     : 27,
-            kotlin        : '1.2.50',
-            supportVersion: '27.1.1'
+            sdkTarget     : 34,
+            kotlin        : '1.9.21',
+            supportVersion: '1.0.2'
     ]
-    ext.kotlin_version = '1.2.50'
+
+    ext.kotlin_version = '1.9.21'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2' }
+        maven { url "https://repo.grails.org/grails/core/" }
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:8.6.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
@@ -21,7 +26,9 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2' }
+        maven { url "https://repo.grails.org/grails/core/" }
     }
 
     tasks.withType(Javadoc).all {
