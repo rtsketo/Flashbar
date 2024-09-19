@@ -2,10 +2,10 @@ package com.andrognito.flashbar.view
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import com.andrognito.flashbar.R
 
-internal class FbButton : TextView {
+internal class FbButton : AppCompatTextView {
 
     constructor(context: Context) : this(context, null)
 
