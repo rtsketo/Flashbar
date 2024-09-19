@@ -9,18 +9,13 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.M
-import android.support.annotation.ColorInt
 import android.text.Spanned
 import android.text.TextUtils
 import android.util.TypedValue
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM
-import android.widget.RelativeLayout.ALIGN_PARENT_TOP
 import com.andrognito.flashbar.Flashbar.Gravity
 import com.andrognito.flashbar.Flashbar.Gravity.BOTTOM
 import com.andrognito.flashbar.Flashbar.Gravity.TOP
@@ -28,13 +23,13 @@ import com.andrognito.flashbar.Flashbar.ProgressPosition.LEFT
 import com.andrognito.flashbar.Flashbar.ProgressPosition.RIGHT
 import com.andrognito.flashbar.SwipeDismissTouchListener.DismissCallbacks
 import com.andrognito.flashbar.anim.FlashAnimIconBuilder
+import com.andrognito.flashbar.databinding.FlashBarViewBinding
 import com.andrognito.flashbar.util.convertDpToPx
 import com.andrognito.flashbar.util.getStatusBarHeightInPx
 import com.andrognito.flashbar.view.ShadowView
-import kotlinx.android.synthetic.main.flash_bar_view.view.*
 
 /**
- * The actual Flashbar withView representation that can consist of the title, message, button, icon, etc.
+ * The actual Flashbar view representation that can consist of the title, message, button, icon, etc.
  * Its size is adaptive and depends solely on the amount of content present in it. It always matches
  * the width of the screen.
  *
@@ -51,13 +46,16 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
 
     private var isMarginCompensationApplied: Boolean = false
 
+    // Initialize View Binding
+    private val binding: FlashBarViewBinding = FlashBarViewBinding.inflate(LayoutInflater.from(context), this, true)
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         if (!isMarginCompensationApplied) {
             isMarginCompensationApplied = true
 
-            val params = layoutParams as ViewGroup.MarginLayoutParams
+            val params = layoutParams as MarginLayoutParams
             when (gravity) {
                 TOP -> params.topMargin = -TOP_COMPENSATION_MARGIN
                 BOTTOM -> params.bottomMargin = -BOTTOM_COMPENSATION_MARGIN
@@ -67,45 +65,45 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
     }
 
     internal fun init(
-            gravity: Gravity,
-            castShadow: Boolean,
-            shadowStrength: Int) {
+        gravity: Gravity,
+        castShadow: Boolean,
+        shadowStrength: Int
+    ) {
         this.gravity = gravity
         this.orientation = VERTICAL
 
-        // If the bar appears with the bottom, then the shadow needs to added to the top of it,
-        // Thus, before the inflation of the bar
+        // If the bar appears with the bottom, then the shadow needs to be added to the top of it,
+        // thus, before the inflation of the bar
         if (castShadow && gravity == BOTTOM) {
             castShadow(ShadowView.ShadowType.TOP, shadowStrength)
         }
 
-        inflate(context, R.layout.flash_bar_view, this)
+        // The layout is already inflated via binding, so no need to call inflate again
 
-        // If the bar appears with the top, then the shadow needs to added to the bottom of it,
-        // Thus, after the inflation of the bar
+        // If the bar appears with the top, then the shadow needs to be added to the bottom of it,
+        // thus, after the inflation of the bar
         if (castShadow && gravity == TOP) {
             castShadow(ShadowView.ShadowType.BOTTOM, shadowStrength)
         }
     }
 
-    internal fun adjustWitPositionAndOrientation(activity: Activity,
-                                                 gravity: Gravity) {
-        val flashbarViewLp = RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+    internal fun adjustWithPositionAndOrientation(activity: Activity, gravity: Gravity) {
+        val flashbarViewLp = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         val statusBarHeight = activity.getStatusBarHeightInPx()
 
-        val flashbarViewContentLp = fbContent.layoutParams as LinearLayout.LayoutParams
+        val flashbarViewContentLp = binding.fbContent.layoutParams as LinearLayout.LayoutParams
 
         when (gravity) {
             TOP -> {
-                flashbarViewContentLp.topMargin = statusBarHeight.plus(TOP_COMPENSATION_MARGIN / 2)
-                flashbarViewLp.addRule(ALIGN_PARENT_TOP)
+                flashbarViewContentLp.topMargin = statusBarHeight + (TOP_COMPENSATION_MARGIN / 2)
+                flashbarViewLp.addRule(RelativeLayout.ALIGN_PARENT_TOP)
             }
             BOTTOM -> {
                 flashbarViewContentLp.bottomMargin = BOTTOM_COMPENSATION_MARGIN
-                flashbarViewLp.addRule(ALIGN_PARENT_BOTTOM)
+                flashbarViewLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
             }
         }
-        fbContent.layoutParams = flashbarViewContentLp
+        binding.fbContent.layoutParams = flashbarViewContentLp
         layoutParams = flashbarViewLp
     }
 
@@ -117,21 +115,21 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
         if (drawable == null) return
 
         if (SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            this.fbRoot.background = drawable
+            binding.fbRoot.background = drawable
         } else {
-            this.fbRoot.setBackgroundDrawable(drawable)
+            binding.fbRoot.setBackgroundDrawable(drawable)
         }
     }
 
-    internal fun setBarBackgroundColor(@ColorInt color: Int?) {
+    internal fun setBarBackgroundColor(@androidx.annotation.ColorInt color: Int?) {
         if (color == null) return
-        this.fbRoot.setBackgroundColor(color)
+        binding.fbRoot.setBackgroundColor(color)
     }
 
     internal fun setBarTapListener(listener: Flashbar.OnTapListener?) {
         if (listener == null) return
 
-        this.fbRoot.setOnClickListener {
+        binding.fbRoot.setOnClickListener {
             listener.onTap(parentFlashbarContainer.parentFlashbar)
         }
     }
@@ -139,139 +137,139 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
     internal fun setTitle(title: String?) {
         if (TextUtils.isEmpty(title)) return
 
-        this.fbTitle.text = title
-        this.fbTitle.visibility = VISIBLE
+        binding.fbTitle.text = title
+        binding.fbTitle.visibility = VISIBLE
     }
 
     internal fun setTitleSpanned(title: Spanned?) {
         if (title == null) return
 
-        this.fbTitle.text = title
-        this.fbTitle.visibility = VISIBLE
+        binding.fbTitle.text = title
+        binding.fbTitle.visibility = VISIBLE
     }
 
     internal fun setTitleTypeface(typeface: Typeface?) {
         if (typeface == null) return
-        fbTitle.typeface = typeface
+        binding.fbTitle.typeface = typeface
     }
 
     internal fun setTitleSizeInPx(size: Float?) {
         if (size == null) return
-        fbTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+        binding.fbTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
     internal fun setTitleSizeInSp(size: Float?) {
         if (size == null) return
-        fbTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        binding.fbTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
     internal fun setTitleColor(color: Int?) {
         if (color == null) return
-        fbTitle.setTextColor(color)
+        binding.fbTitle.setTextColor(color)
     }
 
     internal fun setTitleAppearance(titleAppearance: Int?) {
         if (titleAppearance == null) return
 
         if (SDK_INT >= M) {
-            this.fbTitle.setTextAppearance(titleAppearance)
+            binding.fbTitle.setTextAppearance(titleAppearance)
         } else {
-            this.fbTitle.setTextAppearance(fbTitle.context, titleAppearance)
+            binding.fbTitle.setTextAppearance(context, titleAppearance)
         }
     }
 
     internal fun setMessage(message: String?) {
         if (TextUtils.isEmpty(message)) return
 
-        this.fbMessage.text = message
-        this.fbMessage.visibility = VISIBLE
+        binding.fbMessage.text = message
+        binding.fbMessage.visibility = VISIBLE
     }
 
     internal fun setMessageSpanned(message: Spanned?) {
         if (message == null) return
 
-        this.fbMessage.text = message
-        this.fbMessage.visibility = VISIBLE
+        binding.fbMessage.text = message
+        binding.fbMessage.visibility = VISIBLE
     }
 
     internal fun setMessageTypeface(typeface: Typeface?) {
         if (typeface == null) return
-        this.fbMessage.typeface = typeface
+        binding.fbMessage.typeface = typeface
     }
 
     internal fun setMessageSizeInPx(size: Float?) {
         if (size == null) return
-        this.fbMessage.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+        binding.fbMessage.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
     internal fun setMessageSizeInSp(size: Float?) {
         if (size == null) return
-        this.fbMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        binding.fbMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
     internal fun setMessageColor(color: Int?) {
         if (color == null) return
-        this.fbMessage.setTextColor(color)
+        binding.fbMessage.setTextColor(color)
     }
 
     internal fun setMessageAppearance(messageAppearance: Int?) {
         if (messageAppearance == null) return
 
         if (SDK_INT >= M) {
-            this.fbMessage.setTextAppearance(messageAppearance)
+            binding.fbMessage.setTextAppearance(messageAppearance)
         } else {
-            this.fbMessage.setTextAppearance(fbMessage.context, messageAppearance)
+            binding.fbMessage.setTextAppearance(context, messageAppearance)
         }
     }
 
     internal fun setPrimaryActionText(text: String?) {
         if (TextUtils.isEmpty(text)) return
 
-        this.fbPrimaryAction.text = text
-        this.fbPrimaryAction.visibility = VISIBLE
+        binding.fbPrimaryAction.text = text
+        binding.fbPrimaryAction.visibility = VISIBLE
     }
 
     internal fun setPrimaryActionTextSpanned(text: Spanned?) {
         if (text == null) return
 
-        this.fbPrimaryAction.text = text
-        this.fbPrimaryAction.visibility = VISIBLE
+        binding.fbPrimaryAction.text = text
+        binding.fbPrimaryAction.visibility = VISIBLE
     }
 
     internal fun setPrimaryActionTextTypeface(typeface: Typeface?) {
         if (typeface == null) return
-        this.fbPrimaryAction.typeface = typeface
+        binding.fbPrimaryAction.typeface = typeface
     }
 
     internal fun setPrimaryActionTextSizeInPx(size: Float?) {
         if (size == null) return
-        this.fbPrimaryAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+        binding.fbPrimaryAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
     internal fun setPrimaryActionTextSizeInSp(size: Float?) {
         if (size == null) return
-        this.fbPrimaryAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        binding.fbPrimaryAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
     internal fun setPrimaryActionTextColor(color: Int?) {
         if (color == null) return
-        this.fbPrimaryAction.setTextColor(color)
+        binding.fbPrimaryAction.setTextColor(color)
     }
 
     internal fun setPrimaryActionTextAppearance(messageAppearance: Int?) {
         if (messageAppearance == null) return
 
         if (SDK_INT >= M) {
-            this.fbPrimaryAction.setTextAppearance(messageAppearance)
+            binding.fbPrimaryAction.setTextAppearance(messageAppearance)
         } else {
-            this.fbPrimaryAction.setTextAppearance(fbPrimaryAction.context, messageAppearance)
+            binding.fbPrimaryAction.setTextAppearance(context, messageAppearance)
         }
     }
 
     internal fun setPrimaryActionTapListener(listener: Flashbar.OnActionTapListener?) {
         if (listener == null) return
 
-        this.fbPrimaryAction.setOnClickListener {
+        binding.fbPrimaryAction.setOnClickListener {
             listener.onActionTapped(parentFlashbarContainer.parentFlashbar)
         }
     }
@@ -279,53 +277,53 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
     internal fun setPositiveActionText(text: String?) {
         if (TextUtils.isEmpty(text)) return
 
-        this.fbSecondaryActionContainer.visibility = VISIBLE
-        this.fbPositiveAction.text = text
-        this.fbPositiveAction.visibility = VISIBLE
+        binding.fbSecondaryActionContainer.visibility = VISIBLE
+        binding.fbPositiveAction.text = text
+        binding.fbPositiveAction.visibility = VISIBLE
     }
 
     internal fun setPositiveActionTextSpanned(text: Spanned?) {
         if (text == null) return
 
-        this.fbSecondaryActionContainer.visibility = VISIBLE
-        this.fbPositiveAction.text = text
-        this.fbPositiveAction.visibility = VISIBLE
+        binding.fbSecondaryActionContainer.visibility = VISIBLE
+        binding.fbPositiveAction.text = text
+        binding.fbPositiveAction.visibility = VISIBLE
     }
 
     internal fun setPositiveActionTextTypeface(typeface: Typeface?) {
         if (typeface == null) return
-        this.fbPositiveAction.typeface = typeface
+        binding.fbPositiveAction.typeface = typeface
     }
 
     internal fun setPositiveActionTextSizeInPx(size: Float?) {
         if (size == null) return
-        this.fbPositiveAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+        binding.fbPositiveAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
     internal fun setPositiveActionTextSizeInSp(size: Float?) {
         if (size == null) return
-        this.fbPositiveAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        binding.fbPositiveAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
     internal fun setPositiveActionTextColor(color: Int?) {
         if (color == null) return
-        this.fbPositiveAction.setTextColor(color)
+        binding.fbPositiveAction.setTextColor(color)
     }
 
     internal fun setPositiveActionTextAppearance(messageAppearance: Int?) {
         if (messageAppearance == null) return
 
         if (SDK_INT >= M) {
-            this.fbPositiveAction.setTextAppearance(messageAppearance)
+            binding.fbPositiveAction.setTextAppearance(messageAppearance)
         } else {
-            this.fbPositiveAction.setTextAppearance(fbPrimaryAction.context, messageAppearance)
+            binding.fbPositiveAction.setTextAppearance(context, messageAppearance)
         }
     }
 
     internal fun setPositiveActionTapListener(listener: Flashbar.OnActionTapListener?) {
         if (listener == null) return
 
-        this.fbPositiveAction.setOnClickListener {
+        binding.fbPositiveAction.setOnClickListener {
             listener.onActionTapped(parentFlashbarContainer.parentFlashbar)
         }
     }
@@ -333,97 +331,97 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
     internal fun setNegativeActionText(text: String?) {
         if (TextUtils.isEmpty(text)) return
 
-        this.fbSecondaryActionContainer.visibility = VISIBLE
-        this.fbNegativeAction.text = text
-        this.fbNegativeAction.visibility = VISIBLE
+        binding.fbSecondaryActionContainer.visibility = VISIBLE
+        binding.fbNegativeAction.text = text
+        binding.fbNegativeAction.visibility = VISIBLE
     }
 
     internal fun setNegativeActionTextSpanned(text: Spanned?) {
         if (text == null) return
 
-        this.fbSecondaryActionContainer.visibility = VISIBLE
-        this.fbNegativeAction.text = text
-        this.fbNegativeAction.visibility = VISIBLE
+        binding.fbSecondaryActionContainer.visibility = VISIBLE
+        binding.fbNegativeAction.text = text
+        binding.fbNegativeAction.visibility = VISIBLE
     }
 
     internal fun setNegativeActionTextTypeface(typeface: Typeface?) {
         if (typeface == null) return
-        this.fbNegativeAction.typeface = typeface
+        binding.fbNegativeAction.typeface = typeface
     }
 
     internal fun setNegativeActionTextSizeInPx(size: Float?) {
         if (size == null) return
-        this.fbNegativeAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+        binding.fbNegativeAction.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
     }
 
     internal fun setNegativeActionTextSizeInSp(size: Float?) {
         if (size == null) return
-        this.fbNegativeAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        binding.fbNegativeAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
     internal fun setNegativeActionTextColor(color: Int?) {
         if (color == null) return
-        this.fbNegativeAction.setTextColor(color)
+        binding.fbNegativeAction.setTextColor(color)
     }
 
     internal fun setNegativeActionTextAppearance(messageAppearance: Int?) {
         if (messageAppearance == null) return
 
         if (SDK_INT >= M) {
-            this.fbNegativeAction.setTextAppearance(messageAppearance)
+            binding.fbNegativeAction.setTextAppearance(messageAppearance)
         } else {
-            this.fbNegativeAction.setTextAppearance(fbPrimaryAction.context, messageAppearance)
+            binding.fbNegativeAction.setTextAppearance(context, messageAppearance)
         }
     }
 
     internal fun setNegativeActionTapListener(listener: Flashbar.OnActionTapListener?) {
         if (listener == null) return
 
-        this.fbNegativeAction.setOnClickListener {
+        binding.fbNegativeAction.setOnClickListener {
             listener.onActionTapped(parentFlashbarContainer.parentFlashbar)
         }
     }
 
     internal fun showIcon(showIcon: Boolean) {
-        this.fbIcon.visibility = if (showIcon) VISIBLE else GONE
+        binding.fbIcon.visibility = if (showIcon) VISIBLE else GONE
     }
 
     internal fun showIconScale(scale: Float, scaleType: ImageView.ScaleType?) {
-        this.fbIcon.scaleX = scale
-        this.fbIcon.scaleY = scale
-        this.fbIcon.scaleType = scaleType
+        binding.fbIcon.scaleX = scale
+        binding.fbIcon.scaleY = scale
+        binding.fbIcon.scaleType = scaleType
     }
 
     internal fun setIconDrawable(icon: Drawable?) {
         if (icon == null) return
-        this.fbIcon.setImageDrawable(icon)
+        binding.fbIcon.setImageDrawable(icon)
     }
 
     internal fun setIconBitmap(bitmap: Bitmap?) {
         if (bitmap == null) return
-        this.fbIcon.setImageBitmap(bitmap)
+        binding.fbIcon.setImageBitmap(bitmap)
     }
 
     internal fun setIconColorFilter(colorFilter: Int?, filterMode: PorterDuff.Mode?) {
         if (colorFilter == null) return
         if (filterMode == null) {
-            this.fbIcon.setColorFilter(colorFilter)
+            binding.fbIcon.setColorFilter(colorFilter)
         } else {
-            this.fbIcon.setColorFilter(colorFilter, filterMode)
+            binding.fbIcon.setColorFilter(colorFilter, filterMode)
         }
     }
 
     internal fun startIconAnimation(animator: FlashAnimIconBuilder?) {
-        animator?.withView(fbIcon)?.build()?.start()
+        animator?.withView(binding.fbIcon)?.build()?.start()
     }
 
     internal fun stopIconAnimation() {
-        fbIcon.clearAnimation()
+        binding.fbIcon.clearAnimation()
     }
 
     internal fun enableSwipeToDismiss(enable: Boolean, callbacks: DismissCallbacks) {
         if (enable) {
-            fbRoot.setOnTouchListener(SwipeDismissTouchListener(this, callbacks))
+            binding.fbRoot.setOnTouchListener(SwipeDismissTouchListener(this, callbacks))
         }
     }
 
@@ -431,30 +429,29 @@ internal class FlashbarView(context: Context) : LinearLayout(context) {
         if (position == null) return
         when (position) {
             LEFT -> {
-                fbLeftProgress.visibility = VISIBLE
-                fbRightProgress.visibility = GONE
+                binding.fbLeftProgress.visibility = VISIBLE
+                binding.fbRightProgress.visibility = GONE
             }
             RIGHT -> {
-                fbLeftProgress.visibility = GONE
-                fbRightProgress.visibility = VISIBLE
+                binding.fbLeftProgress.visibility = GONE
+                binding.fbRightProgress.visibility = VISIBLE
             }
         }
     }
 
-    internal fun setProgressTint(progressTint: Int?,
-                                 position: Flashbar.ProgressPosition?) {
+    internal fun setProgressTint(progressTint: Int?, position: Flashbar.ProgressPosition?) {
         if (position == null || progressTint == null) return
 
         val progressBar = when (position) {
-            LEFT -> fbLeftProgress
-            RIGHT -> fbRightProgress
+            LEFT -> binding.fbLeftProgress
+            RIGHT -> binding.fbRightProgress
         }
 
         progressBar.setBarColor(progressTint)
     }
 
     private fun castShadow(shadowType: ShadowView.ShadowType, strength: Int) {
-        val params = RelativeLayout.LayoutParams(MATCH_PARENT, context.convertDpToPx(strength))
+        val params = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, context.convertDpToPx(strength))
         val shadow = ShadowView(context)
         shadow.applyShadow(shadowType)
         addView(shadow, params)

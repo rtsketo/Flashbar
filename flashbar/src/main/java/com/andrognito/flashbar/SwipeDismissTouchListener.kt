@@ -4,11 +4,11 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.os.Build
-import android.support.annotation.RequiresApi
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.annotation.RequiresApi
 
 internal class SwipeDismissTouchListener(
         private val view: View,
@@ -145,7 +145,6 @@ internal class SwipeDismissTouchListener(
         return false
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     private fun performDismiss() {
         val lp = view.layoutParams
         val originalHeight = view.height

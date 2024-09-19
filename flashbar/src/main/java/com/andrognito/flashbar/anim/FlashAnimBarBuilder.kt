@@ -4,11 +4,11 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.support.annotation.InterpolatorRes
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.OvershootInterpolator
+import androidx.annotation.InterpolatorRes
 import com.andrognito.flashbar.Flashbar
 import com.andrognito.flashbar.Flashbar.Gravity.BOTTOM
 import com.andrognito.flashbar.Flashbar.Gravity.TOP
@@ -110,48 +110,39 @@ class FlashAnimBarBuilder(context: Context) : BaseFlashAnimBuilder(context) {
         val compositeAnim = AnimatorSet()
         val animators = linkedSetOf<Animator>()
 
-        val translationAnim = ObjectAnimator()
-        // Slide from left/right animation is not specified, default top/bottom
-        // animation is applied
-        if (direction == null) {
-            translationAnim.propertyName = "translationY"
-
-            when (type!!) {
-                ENTER -> when (gravity!!) {
-                    TOP -> translationAnim.setFloatValues(-view!!.height.toFloat(), 0f)
-                    BOTTOM -> translationAnim.setFloatValues(view!!.height.toFloat(), 0f)
-                }
-                EXIT -> when (gravity!!) {
-                    TOP -> translationAnim.setFloatValues(0f, -view!!.height.toFloat())
-                    BOTTOM -> translationAnim.setFloatValues(0f, view!!.height.toFloat())
-                }
+        // Translation Animation
+        val translationAnim = when (type!!) {
+            ENTER -> when (gravity!!) {
+                TOP -> ObjectAnimator.ofFloat(view!!, "translationY", -view!!.height.toFloat(), 0f)
+                BOTTOM -> ObjectAnimator.ofFloat(view!!, "translationY", view!!.height.toFloat(), 0f)
             }
-        } else {
-            translationAnim.propertyName = "translationX"
-
-            when (type!!) {
-                ENTER -> when (direction!!) {
-                    LEFT -> translationAnim.setFloatValues(-view!!.width.toFloat(), 0f)
-                    RIGHT -> translationAnim.setFloatValues(view!!.width.toFloat(), 0f)
-                }
-                EXIT -> when (direction!!) {
-                    LEFT -> translationAnim.setFloatValues(0f, -view!!.width.toFloat())
-                    RIGHT -> translationAnim.setFloatValues(0f, view!!.width.toFloat())
-                }
+            EXIT -> when (gravity!!) {
+                TOP -> ObjectAnimator.ofFloat(view!!, "translationY", 0f, -view!!.height.toFloat())
+                BOTTOM -> ObjectAnimator.ofFloat(view!!, "translationY", 0f, view!!.height.toFloat())
             }
         }
-
-        translationAnim.target = view
         animators.add(translationAnim)
 
-        if (alpha) {
-            val alphaAnim = ObjectAnimator()
-            alphaAnim.propertyName = "alpha"
-            alphaAnim.target = view
+        // Direction-Based Translation Animation
+        if (direction != null) {
+            val directionAnim = when (type!!) {
+                ENTER -> when (direction!!) {
+                    LEFT -> ObjectAnimator.ofFloat(view!!, "translationX", -view!!.width.toFloat(), 0f)
+                    RIGHT -> ObjectAnimator.ofFloat(view!!, "translationX", view!!.width.toFloat(), 0f)
+                }
+                EXIT -> when (direction!!) {
+                    LEFT -> ObjectAnimator.ofFloat(view!!, "translationX", 0f, -view!!.width.toFloat())
+                    RIGHT -> ObjectAnimator.ofFloat(view!!, "translationX", 0f, view!!.width.toFloat())
+                }
+            }
+            animators.add(directionAnim)
+        }
 
-            when (type!!) {
-                ENTER -> alphaAnim.setFloatValues(DEFAULT_ALPHA_START, DEFAULT_ALPHA_END)
-                EXIT -> alphaAnim.setFloatValues(DEFAULT_ALPHA_END, DEFAULT_ALPHA_START)
+        // Alpha Animation
+        if (alpha) {
+            val alphaAnim = when (type!!) {
+                ENTER -> ObjectAnimator.ofFloat(view!!, "alpha", DEFAULT_ALPHA_START, DEFAULT_ALPHA_END)
+                EXIT -> ObjectAnimator.ofFloat(view!!, "alpha", DEFAULT_ALPHA_END, DEFAULT_ALPHA_START)
             }
             animators.add(alphaAnim)
         }
@@ -165,4 +156,9 @@ class FlashAnimBarBuilder(context: Context) : BaseFlashAnimBuilder(context) {
 
     enum class Type { ENTER, EXIT }
     enum class Direction { LEFT, RIGHT }
+
+    companion object {
+        private const val DEFAULT_ALPHA_START = 0f
+        private const val DEFAULT_ALPHA_END = 1f
+    }
 }

@@ -1,10 +1,14 @@
 package com.andrognito.flashbar.anim
 
 import android.content.Context
-import android.support.annotation.CallSuper
-import android.support.annotation.InterpolatorRes
 import android.view.View
-import android.view.animation.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.Interpolator
+import androidx.annotation.CallSuper
+import androidx.annotation.InterpolatorRes
 import com.andrognito.flashbar.R
 
 abstract class BaseFlashAnimBuilder(private val context: Context) {

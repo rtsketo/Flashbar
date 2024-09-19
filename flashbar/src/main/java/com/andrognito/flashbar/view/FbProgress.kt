@@ -15,6 +15,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
 import com.andrognito.flashbar.R
+import kotlin.math.pow
 
 /**
  * Forked from Todd Davies' Progress Wheel https://github.com/Todd-Davies/ProgressWheel
@@ -160,8 +161,10 @@ class FbProgress : View {
             var progress = this.progress
             if (!linearProgress) {
                 val factor = 2.0f
-                offset = (1.0f - Math.pow((1.0f - this.progress / 360.0f).toDouble(), (2.0f * factor).toDouble())).toFloat() * 360.0f
-                progress = (1.0f - Math.pow((1.0f - this.progress / 360.0f).toDouble(), factor.toDouble())).toFloat() * 360.0f
+                offset = (1.0f - (1.0f - this.progress / 360.0f).toDouble()
+                    .pow((2.0f * factor).toDouble())).toFloat() * 360.0f
+                progress = (1.0f - (1.0f - this.progress / 360.0f).toDouble()
+                    .pow(factor.toDouble())).toFloat() * 360.0f
             }
 
             if (isInEditMode) {
@@ -184,25 +187,21 @@ class FbProgress : View {
         }
     }
 
-    public override fun onSaveInstanceState(): Parcelable? {
-        val superState = super.onSaveInstanceState()
+    public override fun onSaveInstanceState(): Parcelable? =
+        super.onSaveInstanceState()?.let { WheelSavedState(it) }?.also {
+            it.mProgress = this.progress
+            it.mTargetProgress = this.targetProgress
+            it.isSpinning = this.isSpinning
+            it.spinSpeed = this.spinSpeed
+            it.barWidth = this.barWidth
+            it.barColor = this.barColor
+            it.rimWidth = this.rimWidth
+            it.rimColor = this.rimColor
+            it.circleRadius = this.circleRadius
+            it.linearProgress = this.linearProgress
+            it.fillRadius = this.fillRadius
+        }
 
-        val ss = WheelSavedState(superState)
-
-        ss.mProgress = this.progress
-        ss.mTargetProgress = this.targetProgress
-        ss.isSpinning = this.isSpinning
-        ss.spinSpeed = this.spinSpeed
-        ss.barWidth = this.barWidth
-        ss.barColor = this.barColor
-        ss.rimWidth = this.rimWidth
-        ss.rimColor = this.rimColor
-        ss.circleRadius = this.circleRadius
-        ss.linearProgress = this.linearProgress
-        ss.fillRadius = this.fillRadius
-
-        return ss
-    }
 
     public override fun onRestoreInstanceState(state: Parcelable) {
         if (state !is WheelSavedState) {
@@ -377,11 +376,15 @@ class FbProgress : View {
 
         val animationValue: Float
         animationValue = if (currentApiVersion >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Settings.Global.getFloat(context.contentResolver,
-                    Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE, 1f
+            )
         } else {
-            Settings.System.getFloat(context.contentResolver,
-                    Settings.System.ANIMATOR_DURATION_SCALE, 1f)
+            Settings.System.getFloat(
+                context.contentResolver,
+                Settings.System.ANIMATOR_DURATION_SCALE, 1f
+            )
         }
 
         shouldAnimate = animationValue != 0f
@@ -394,32 +397,48 @@ class FbProgress : View {
         val paddingRight = paddingRight
 
         if (!fillRadius) {
-            val minValue = Math.min(layoutWidth - paddingLeft - paddingRight,
-                    layoutHeight - paddingBottom - paddingTop)
+            val minValue = Math.min(
+                layoutWidth - paddingLeft - paddingRight,
+                layoutHeight - paddingBottom - paddingTop
+            )
 
             val circleDiameter = Math.min(minValue, circleRadius * 2 - barWidth * 2)
 
-            val xOffset = (layoutWidth - paddingLeft - paddingRight - circleDiameter) / 2 + paddingLeft
-            val yOffset = (layoutHeight - paddingTop - paddingBottom - circleDiameter) / 2 + paddingTop
+            val xOffset =
+                (layoutWidth - paddingLeft - paddingRight - circleDiameter) / 2 + paddingLeft
+            val yOffset =
+                (layoutHeight - paddingTop - paddingBottom - circleDiameter) / 2 + paddingTop
 
-            circleBounds = RectF((xOffset + barWidth).toFloat(), (yOffset + barWidth).toFloat(),
-                    (xOffset + circleDiameter - barWidth).toFloat(),
-                    (yOffset + circleDiameter - barWidth).toFloat())
+            circleBounds = RectF(
+                (xOffset + barWidth).toFloat(), (yOffset + barWidth).toFloat(),
+                (xOffset + circleDiameter - barWidth).toFloat(),
+                (yOffset + circleDiameter - barWidth).toFloat()
+            )
         } else {
-            circleBounds = RectF((paddingLeft + barWidth).toFloat(), (paddingTop + barWidth).toFloat(),
-                    (layoutWidth - paddingRight - barWidth).toFloat(),
-                    (layoutHeight - paddingBottom - barWidth).toFloat())
+            circleBounds = RectF(
+                (paddingLeft + barWidth).toFloat(), (paddingTop + barWidth).toFloat(),
+                (layoutWidth - paddingRight - barWidth).toFloat(),
+                (layoutHeight - paddingBottom - barWidth).toFloat()
+            )
         }
     }
 
     private fun parseAttributes(a: TypedArray) {
         val metrics = context.resources.displayMetrics
-        barWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, barWidth.toFloat(), metrics).toInt()
-        rimWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, rimWidth.toFloat(), metrics).toInt()
-        circleRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, circleRadius.toFloat(), metrics).toInt()
+        barWidth =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, barWidth.toFloat(), metrics)
+                .toInt()
+        rimWidth =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, rimWidth.toFloat(), metrics)
+                .toInt()
+        circleRadius =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, circleRadius.toFloat(), metrics)
+                .toInt()
 
-        circleRadius = a.getDimension(R.styleable.FbProgress_fbp_circleRadius,
-                circleRadius.toFloat()).toInt()
+        circleRadius = a.getDimension(
+            R.styleable.FbProgress_fbp_circleRadius,
+            circleRadius.toFloat()
+        ).toInt()
 
         fillRadius = a.getBoolean(R.styleable.FbProgress_fbp_fillRadius, false)
 
@@ -430,8 +449,10 @@ class FbProgress : View {
         val baseSpinSpeed = a.getFloat(R.styleable.FbProgress_fbp_spinSpeed, spinSpeed / 360.0f)
         spinSpeed = baseSpinSpeed * 360
 
-        barSpinCycleTime = a.getInt(R.styleable.FbProgress_fbp_barSpinCycleTime,
-                barSpinCycleTime.toInt()).toDouble()
+        barSpinCycleTime = a.getInt(
+            R.styleable.FbProgress_fbp_barSpinCycleTime,
+            barSpinCycleTime.toInt()
+        ).toDouble()
 
         barColor = a.getColor(R.styleable.FbProgress_fbp_barColor, barColor)
 
@@ -468,7 +489,8 @@ class FbProgress : View {
                 barGrowingFromFront = !barGrowingFromFront
             }
 
-            val distance = Math.cos((timeStartGrowing / barSpinCycleTime + 1) * Math.PI).toFloat() / 2 + 0.5f
+            val distance =
+                Math.cos((timeStartGrowing / barSpinCycleTime + 1) * Math.PI).toFloat() / 2 + 0.5f
             val destLength = (barMaxLength - barLength).toFloat()
 
             if (barGrowingFromFront) {
@@ -545,15 +567,16 @@ class FbProgress : View {
         }
 
         companion object {
-            val CREATOR: Parcelable.Creator<WheelSavedState> = object : Parcelable.Creator<WheelSavedState> {
-                override fun createFromParcel(`in`: Parcel): WheelSavedState {
-                    return WheelSavedState(`in`)
-                }
+            val CREATOR: Parcelable.Creator<WheelSavedState> =
+                object : Parcelable.Creator<WheelSavedState> {
+                    override fun createFromParcel(`in`: Parcel): WheelSavedState {
+                        return WheelSavedState(`in`)
+                    }
 
-                override fun newArray(size: Int): Array<WheelSavedState> {
-                    return newArray(size)
+                    override fun newArray(size: Int): Array<WheelSavedState> {
+                        return newArray(size)
+                    }
                 }
-            }
         }
     }
 }
